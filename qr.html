@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đánh giá trải nghiệm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2563eb;
+            --color-primary-dark: #1d4ed8;
+            --color-text: #0f172a;
+            --color-text-muted: #64748b;
+            --color-bg-alt: #f1f5f9;
+            --color-border: #e2e8f0;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,.1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --transition: .2s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-text);
+            background: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .brand {
+            height: 36px;
+            width: auto;
+            margin-bottom: 16px;
+        }
+
+        .venue-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--color-text-muted);
+            margin-bottom: 24px;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .star {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: transform var(--transition);
+            color: #d1d5db;
+        }
+
+        .star:hover, .star.active {
+            color: #facc15;
+            transform: scale(1.1);
+        }
+
+        .rating-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 24px;
+            min-height: 24px;
+        }
+
+        .feedback-form {
+            display: none;
+            text-align: left;
+            margin-top: 16px;
+        }
+
+        .feedback-form.visible {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-family: var(--font);
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition);
+            min-height: 46px;
+            white-space: nowrap;
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+        }
+
+        .btn--block {
+            width: 100%;
+        }
+
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .message.error {
+            display: block;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .message.success {
+            display: block;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="venue-name" id="venueName">Đang tải...</div>
+            <p class="subtitle">Bạn vừa quét mã QR từ quán này</p>
+
+            <div class="stars" id="starContainer">
+                <svg class="star" data-value="1" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" data-value="2" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" data-value="3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" data-value="4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" data-value="5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            </div>
+
+            <div class="rating-text" id="ratingText"></div>
+
+            <form class="feedback-form" id="feedbackForm">
+                <div class="form-group">
+                    <label for="customerName">Họ tên (tùy chọn)</label>
+                    <input type="text" id="customerName" placeholder="Nhập họ tên của bạn">
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email (tùy chọn)</label>
+                    <input type="email" id="customerEmail" placeholder="Nhập email của bạn">
+                </div>
+                <div class="form-group">
+                    <label for="comment">Góp ý chi tiết</label>
+                    <textarea id="comment" placeholder="Cho chúng tôi biết bạn nghĩ gì..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary btn--block">Gửi phản hồi</button>
+            </form>
+
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://qr-nfc-api.onrender.com';
+        const REVIEW_URL = 'https://review.mistydev.id.vn';
+        const urlParams = new URLSearchParams(window.location.search);
+        let code = urlParams.get('code');
+        if (!code && window.location.pathname.includes('/qr/')) {
+            code = window.location.pathname.split('/qr/').pop();
+        }
+
+        let selectedRating = 0;
+        let googleReviewUrl = '';
+
+        const starContainer = document.getElementById('starContainer');
+        const ratingText = document.getElementById('ratingText');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const messageEl = document.getElementById('message');
+        const venueNameEl = document.getElementById('venueName');
+
+        function updateStars(value) {
+            selectedRating = value;
+            document.querySelectorAll('.star').forEach((star, index) => {
+                if (index < value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            const messages = [
+                '',
+                'Rất tệ',
+                'Tệ',
+                'Bình thường',
+                'Tốt',
+                'Rất tốt'
+            ];
+            ratingText.textContent = messages[value] || '';
+
+            if (value >= 4) {
+                feedbackForm.classList.remove('visible');
+            } else if (value > 0) {
+                feedbackForm.classList.add('visible');
+            }
+        }
+
+        starContainer.addEventListener('click', (e) => {
+            const star = e.target.closest('.star');
+            if (!star) return;
+            updateStars(parseInt(star.dataset.value));
+        });
+
+        feedbackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (selectedRating === 0) {
+                showMessage('Vui lòng chọn số sao đánh giá', 'error');
+                return;
+            }
+
+            const comment = document.getElementById('comment').value.trim();
+            if (!comment) {
+                showMessage('Vui lòng nhập góp ý chi tiết', 'error');
+                return;
+            }
+
+            const payload = {
+                code: code,
+                rating: selectedRating,
+                comment: comment,
+                customer_name: document.getElementById('customerName').value.trim() || null,
+                customer_email: document.getElementById('customerEmail').value.trim() || null
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/qr-nfc/reviews/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Gửi đánh giá thất bại');
+                showMessage('Cảm ơn bạn đã gửi phản hồi!', 'success');
+                feedbackForm.reset();
+                feedbackForm.classList.remove('visible');
+                updateStars(0);
+            } catch (err) {
+                showMessage(err.message, 'error');
+            }
+        });
+
+        function showMessage(text, type) {
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+        }
+
+        async function init() {
+            if (!code) {
+                venueNameEl.textContent = 'Không tìm thấy mã QR';
+                ratingText.textContent = 'Vui lòng quét lại mã QR hợp lệ.';
+                starContainer.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/qr-nfc/resolve/${encodeURIComponent(code)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Không thể tải thông tin QR');
+
+                googleReviewUrl = data.redirect_url || '';
+                venueNameEl.textContent = data.venue_name || 'Quán của chúng tôi';
+
+                if (data.mode === 'dashboard') {
+                    return;
+                }
+
+                if (googleReviewUrl) {
+                    showMessage('Đang chuyển hướng đến Google Review...', 'success');
+                    setTimeout(() => {
+                        window.location.href = googleReviewUrl;
+                    }, 1200);
+                    starContainer.classList.add('hidden');
+                } else {
+                    showMessage('QR chưa được cấu hình.', 'error');
+                    starContainer.classList.add('hidden');
+                }
+            } catch (err) {
+                venueNameEl.textContent = 'Không tìm thấy mã QR';
+                ratingText.textContent = err.message;
+                starContainer.classList.add('hidden');
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
