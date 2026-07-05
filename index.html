@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MistySoft QR-NFC - Giải pháp Thẻ Review NFC + Quản lý Dashboard</title>
+    <meta name="description" content="Giải pháp Thẻ NFC + QR cho Google Review kết hợp Dashboard quản lý. Tăng review, lọc feedback tiêu cực, tối ưu uy tín trực tuyến cho quán F&B, Spa, Salon.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/assets/images/resources/favicon.svg">
+    <style>
+        :root {
+            --color-primary: #2563eb;
+            --color-primary-dark: #1d4ed8;
+            --color-text: #0f172a;
+            --color-text-muted: #64748b;
+            --color-bg-alt: #f1f5f9;
+            --color-border: #e2e8f0;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,.1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --header-height: 70px;
+            --transition: .2s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-text);
+            background: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        img { max-width: 100%; height: auto; display: block; }
+        a { color: inherit; text-decoration: none; }
+        ul { list-style: none; }
+
+        .container {
+            width: 100%;
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            background: #fff;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header__inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav__link {
+            padding: 10px 18px;
+            font-size: .9rem;
+            font-weight: 500;
+            color: var(--color-text-muted);
+            border-radius: 6px;
+            transition: all var(--transition);
+        }
+
+        .nav__link:hover {
+            color: var(--color-primary);
+            background: rgba(37,99,235,.08);
+        }
+
+        .nav__link--cta {
+            background: var(--color-primary);
+            color: #fff;
+            margin-left: 8px;
+        }
+
+        .nav__link--cta:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--color-text);
+            border-radius: 2px;
+            transition: all var(--transition);
+        }
+
+        @media (max-width: 768px) {
+            .nav-toggle { display: flex; }
+            .nav {
+                position: absolute;
+                inset: var(--header-height) 0 auto 0;
+                background: #fff;
+                border-bottom: 1px solid var(--color-border);
+                flex-direction: column;
+                padding: 12px 20px;
+                gap: 4px;
+                transform: translateY(-120%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all var(--transition);
+            }
+            .nav.is-open {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        .footer {
+            background: #fff;
+            color: var(--color-text);
+            padding: 60px 0 24px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .footer__inner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .footer__inner { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .footer__inner { grid-template-columns: 1fr; }
+        }
+
+        .footer__logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .footer__logo-wrap img {
+            height: 40px;
+            width: auto;
+        }
+
+        .footer__logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer__logo-name {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .footer__logo-tagline {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #94a3b8;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .footer__heading {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .footer__list li + li {
+            margin-top: 10px;
+        }
+
+        .footer__list a {
+            color: var(--color-text-muted);
+            transition: color var(--transition);
+        }
+
+        .footer__list a:hover {
+            color: var(--color-primary);
+        }
+
+        .footer__bottom {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: .9rem;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section--alt {
+            background: var(--color-bg-alt);
+        }
+
+        .section__title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 48px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-family: var(--font);
+            font-size: .95rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition);
+            min-height: 46px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .btn--outline {
+            background: transparent;
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .btn--outline:hover {
+            background: rgba(37,99,235,.08);
+            transform: translateY(-1px);
+        }
+
+        .btn--block {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <a href="/" class="logo">
+                <img src="/assets/images/resources/logo_1_.svg" alt="MistySoft" width="140" height="36">
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Mở menu">
+                <span></span><span></span><span></span>
+            </button>
+            <nav class="nav" id="nav">
+                <a href="#features" class="nav__link">Tính năng</a>
+                <a href="#how-it-works" class="nav__link">Cách hoạt động</a>
+                <a href="#pricing" class="nav__link">Bảng giá</a>
+                <a href="#faq" class="nav__link">FAQ</a>
+                <a href="https://app.mistydev.id.vn" class="nav__link nav__link--cta" target="_blank" rel="noopener">Đăng ký ngay</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section" style="background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%); color: #fff;">
+        <div class="container text-center">
+            <h1 class="section__title" style="color:#fff; margin-bottom: 24px; font-size: 2.75rem;">Giải pháp Thẻ NFC + QR cho Google Review</h1>
+            <p style="font-size: 1.25rem; color: #bfdbfe; max-width: 800px; margin: 0 auto 32px;">Tăng review tích cực, lọc feedback tiêu cực, quản lý uy tín trực tuyến hiệu quả với Dashboard chuyên nghiệp</p>
+            <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+                <a href="https://app.mistydev.id.vn" class="btn btn--primary" target="_blank" rel="noopener">Đăng ký dùng thử</a>
+                <a href="#how-it-works" class="btn btn--outline">Tìm hiểu thêm</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section__title">Tính năng nổi bật</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+                <div class="card">
+                    <div style="width:64px; height:64px; background:#dbeafe; color:#2563eb; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px;">
+                        <svg style="width:32px; height:32px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Thẻ NFC + QR thông minh</h3>
+                    <p style="color: var(--color-text-muted);">Tạo và quản lý thẻ NFC + QR không giới hạn, định tuyến linh hoạt theo nhu cầu</p>
+                </div>
+
+                <div class="card">
+                    <div style="width:64px; height:64px; background:#dbeafe; color:#2563eb; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px;">
+                        <svg style="width:32px; height:32px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Dashboard quản lý chuyên nghiệp</h3>
+                    <p style="color: var(--color-text-muted);">Theo dõi lượt quét, phân tích hành vi khách hàng, quản lý đa chi nhánh</p>
+                </div>
+
+                <div class="card">
+                    <div style="width:64px; height:64px; background:#dbeafe; color:#2563eb; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px;">
+                        <svg style="width:32px; height:32px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Phễu lọc Feedback thông minh</h3>
+                    <p style="color: var(--color-text-muted);">Lọc review tiêu cực trước khi đăng lên Google, giải quyết khiếu nại kịp thời</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="section section--alt">
+        <div class="container">
+            <h2 class="section__title">Cách hoạt động</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px;">
+                <div style="text-align: center;">
+                    <div style="width:48px; height:48px; background: var(--color-primary); color:#fff; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px; font-weight:700;">1</div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px;">Đăng ký & Nhận thẻ</h3>
+                    <p style="color: var(--color-text-muted);">Đăng ký gói dịch vụ, nhận thẻ NFC + QR được thiết kế riêng</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <div style="width:48px; height:48px; background: var(--color-primary); color:#fff; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px; font-weight:700;">2</div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px;">Hiển thị tại quán</h3>
+                    <p style="color: var(--color-text-muted);">Đặt thẻ tại bàn, quầy thanh toán hoặc khu vực khách hàng</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <div style="width:48px; height:48px; background: var(--color-primary); color:#fff; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px; font-weight:700;">3</div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px;">Khách chạm/quét</h3>
+                    <p style="color: var(--color-text-muted);">Khách chạm thẻ NFC hoặc quét QR để đánh giá trải nghiệm</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <div style="width:48px; height:48px; background: var(--color-primary); color:#fff; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 16px; font-weight:700;">4</div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px;">Quản lý trên Dashboard</h3>
+                    <p style="color: var(--color-text-muted);">Theo dõi lượt quét, review, và phân tích dữ liệu trên Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="section">
+        <div class="container">
+            <h2 class="section__title">Bảng giá dịch vụ</h2>
+            <p style="text-align: center; color: var(--color-text-muted); max-width: 700px; margin: 0 auto 48px; font-size: 1.05rem;">Bạn chỉ cần mua thẻ NFC + QR. Tùy theo nhu cầu, có thể dùng đơn giản hoặc kèm theo hệ thống quản lý Dashboard.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: start;">
+                <div class="card">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Gói Thẻ đơn</h3>
+                    <p style="font-size: 2.5rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">150.000đ<span style="font-size: 1rem; color: var(--color-text-muted);">/thẻ</span></p>
+                    <p style="font-size: .875rem; color: var(--color-text-muted); margin-bottom: 24px;">Mua thẻ, tự cấu hình link review, khách quét đi thẳng Google Review</p>
+                    <ul style="text-align: left; color: var(--color-text); display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                        <li>✓ Thẻ NFC + QR được thiết kế riêng</li>
+                        <li>✓ Bạn tự cấu hình link Google Review của quán</li>
+                        <li>✓ Khách quét → Chuyển thẳng đến Google Review</li>
+                        <li>✓ Không cần đăng nhập hệ thống</li>
+                        <li>✓ Hỗ trợ hướng dẫn cấu hình</li>
+                    </ul>
+                    <p style="font-size: .875rem; color: var(--color-text-muted); margin-bottom: 16px;">Phù hợp quán nhỏ, cafe cần tăng review đơn giản</p>
+                    <a href="https://app.mistydev.id.vn" class="btn btn--primary btn--block" target="_blank" rel="noopener">Đăng ký ngay</a>
+                </div>
+
+                <div class="card" style="border: 2px solid var(--color-primary); box-shadow: var(--shadow-lg); position: relative;">
+                    <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #facc15; color: #0f172a; font-size: .75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px;">Phổ biến nhất</span>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Gói Dashboard</h3>
+                    <p style="font-size: 2.5rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">150.000đ<span style="font-size: 1rem; color: var(--color-text-muted);">/thẻ</span></p>
+                    <p style="font-size: 2.5rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">+ 99.000đ<span style="font-size: 1rem; color: var(--color-text-muted);">/tháng</span></p>
+                    <p style="font-size: .875rem; color: var(--color-text-muted); margin-bottom: 24px;">Thẻ kèm Dashboard quản lý, phân tích và phễu lọc feedback thông minh</p>
+                    <ul style="text-align: left; color: var(--color-text); display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                        <li>✓ Tất cả tính năng Gói Thẻ đơn</li>
+                        <li>✓ Dashboard quản lý đa chi nhánh</li>
+                        <li>✓ Phễu lọc Feedback: khách quét phải đánh giá trước</li>
+                        <li>✓ Tự động phân loại: đánh giá cao → Google Review; thấp → form nội bộ</li>
+                        <li>✓ Thống kê lượt quét, rating, feedback chi tiết</li>
+                        <li>✓ Hỗ trợ ưu tiên</li>
+                    </ul>
+                    <p style="font-size: .875rem; color: var(--color-text-muted); margin-bottom: 16px;">Phù hợp nhà hàng, spa, chuỗi F&B muốn quản lý chuyên nghiệp</p>
+                    <a href="https://app.mistydev.id.vn" class="btn btn--primary btn--block" target="_blank" rel="noopener">Đăng ký ngay</a>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Đại lý / Affiliate</h3>
+                    <p style="font-size: 2.5rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">Liên hệ</p>
+                    <p style="font-size: .875rem; color: var(--color-text-muted); margin-bottom: 24px;">Nhập thẻ về và bán lại cho chủ quán</p>
+                    <ul style="text-align: left; color: var(--color-text); display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                        <li>✓ Nhập thẻ NFC + QR với giá sỉ</li>
+                        <li>✓ Tự do bán lại cho chủ quán</li>
+                        <li>✓ Hỗ trợ cung cấp Dashboard cho khách hàng của bạn</li>
+                        <li>✓ Công cụ và tài liệu bán hàng</li>
+                        <li>✓ Hỗ trợ kỹ thuật & đào tạo</li>
+                    </ul>
+                    <p style="font-size: .875rem; color: var(--color-text-muted); margin-bottom: 16px;">Phù hợp đối tác, agency, nhà phân phối</p>
+                    <a href="https://app.mistydev.id.vn" class="btn btn--primary btn--block" target="_blank" rel="noopener">Liên hệ đăng ký</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="section section--alt">
+        <div class="container" style="max-width: 900px;">
+            <h2 class="section__title">Câu hỏi thường gặp</h2>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                    <button onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer; font-weight: 600; color: var(--color-text); font-size: 1rem;">Thẻ NFC + QR là gì?
+                        <svg style="width: 20px; height: 20px; transition: transform var(--transition);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div style="display: none; padding: 0 20px 16px; color: var(--color-text-muted);">Thẻ NFC + QR là giải pháp giúp quán F&B, Spa, Salon tăng review Google Maps thông qua việc khách hàng chạm thẻ NFC hoặc quét mã QR để đánh giá trải nghiệm.</div>
+                </div>
+
+                <div style="background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                    <button onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer; font-weight: 600; color: var(--color-text); font-size: 1rem;">Nó hoạt động như thế nào?
+                        <svg style="width: 20px; height: 20px; transition: transform var(--transition);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div style="display: none; padding: 0 20px 16px; color: var(--color-text-muted);">Khách hàng chạm thẻ NFC hoặc quét QR → Hệ thống hỏi mức độ hài lòng → Nếu đánh giá cao, dẫn đến Google Review → Nếu đánh giá thấp, dẫn đến form góp ý nội bộ để quán xử lý.</div>
+                </div>
+
+                <div style="background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                    <button onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer; font-weight: 600; color: var(--color-text); font-size: 1rem;">Có gói dùng thử không?
+                        <svg style="width: 20px; height: 20px; transition: transform var(--transition);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div style="display: none; padding: 0 20px 16px; color: var(--color-text-muted);">Bạn có thể bắt đầu với Gói Thẻ đơn (150.000đ/thẻ) để tự cấu hình link Google Review. Khi cần quản lý và phân tích, nâng cấp lên Gói Dashboard kèm phí duy trì 99.000đ/tháng bất cứ lúc nào.</div>
+                </div>
+
+                <div style="background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                    <button onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer; font-weight: 600; color: var(--color-text); font-size: 1rem;">Có thể nâng cấp gói sau không?
+                        <svg style="width: 20px; height: 20px; transition: transform var(--transition);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div style="display: none; padding: 0 20px 16px; color: var(--color-text-muted);">Hoàn toàn! Bạn có thể mua Gói Thẻ đơn trước, sau đó nâng cấp lên Gói Dashboard để có thêm Dashboard quản lý, phễu lọc feedback và thống kê chi tiết. Chúng tôi hỗ trợ chuyển đổi linh hoạt.</div>
+                </div>
+
+                <div style="background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                    <button onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer; font-weight: 600; color: var(--color-text); font-size: 1rem;">Khác biệt với thẻ bán trên Shopee là gì?
+                        <svg style="width: 20px; height: 20px; transition: transform var(--transition);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div style="display: none; padding: 0 20px 16px; color: var(--color-text-muted);">Thẻ của chúng tôi không chỉ là thẻ vật lý đơn thuần. Với Gói Dashboard, khách quét sẽ đi qua phễu lọc feedback thông minh: đánh giá cao thì ra Google Review, đánh giá thấp thì vào form nội bộ để quán xử lý kịp thời. Đây là giải pháp toàn diện, có phần mềm hỗ trợ.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div>
+                    <div class="footer__logo-wrap">
+                        <img src="/assets/images/resources/logo_1_.svg" alt="MistySoft">
+                        <div class="footer__logo-text">
+                            <span class="footer__logo-name">MISTYSOFT</span>
+                            <span class="footer__logo-tagline">SMART SYSTEMS - SEAMLESS SOLUTIONS</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--color-text-muted); margin-bottom: 16px;">Giải pháp Thẻ NFC + QR cho Google Review kết hợp Dashboard quản lý chuyên nghiệp.</p>
+                    <div style="color: var(--color-text-muted); font-size: .9rem; display: flex; flex-direction: column; gap: 6px;">
+                        <p><strong>Hotline:</strong> 0901234567</p>
+                        <p><strong>Email:</strong> realleesan@gmail.com</p>
+                        <p><strong>Địa chỉ:</strong> Phú Diễn, Hà Nội, Việt Nam</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="footer__heading">Sản phẩm</h4>
+                    <ul class="footer__list">
+                        <li><a href="#features">Tính năng</a></li>
+                        <li><a href="#pricing">Bảng giá</a></li>
+                        <li><a href="https://app.mistydev.id.vn" target="_blank" rel="noopener">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer__heading">Công ty</h4>
+                    <ul class="footer__list">
+                        <li><a href="https://mistysoft.com" target="_blank" rel="noopener">Về chúng tôi</a></li>
+                        <li><a href="https://mistysoft.com" target="_blank" rel="noopener">Liên hệ</a></li>
+                        <li><a href="https://mistysoft.com" target="_blank" rel="noopener">Dự án khác</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer__heading">Hỗ trợ</h4>
+                    <ul class="footer__list">
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p>&copy; <span id="year"></span> MistySoft. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const navToggle = document.getElementById('navToggle');
+        const nav = document.getElementById('nav');
+
+        navToggle.addEventListener('click', () => {
+            nav.classList.toggle('is-open');
+        });
+
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('svg');
+            const isOpen = content.style.display === 'block';
+
+            document.querySelectorAll('#faq [style*="display: block"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('#faq svg').forEach(el => el.style.transform = 'rotate(0deg)');
+
+            if (!isOpen) {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+    </script>
+</body>
+</html>
